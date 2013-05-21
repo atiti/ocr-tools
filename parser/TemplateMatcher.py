@@ -71,6 +71,7 @@ class TemplateMatcher:
 			startindex += 1
 		return found
 
+	# Find the rule with the maximum confidence
 	def get_max_confidence(self, strarray, tomatch):
 		maxconf = 0
 		maxconfword = ""
@@ -79,14 +80,16 @@ class TemplateMatcher:
 		for s in strarray:
 			conf = self.compare_ncs(s, tomatch, 0)
 			#print s,"=>",tomatch[0:len(s)],"   |",conf
-			if conf > maxconf:
+			if conf >= maxconf and len(s) > len(maxconfword):
 				maxconf = conf
 				maxmatchword = tomatch[0:len(s)]
 				maxconfword = s
 		return (maxconf, maxmatchword, maxconfword)
 
+	# Match the template over a given string
 	def locate_template(self, origstring, confidence):
 		bestmatch = 0
+		bestconf = 0
 		found = (-1, [], 0)
 		startindex = 0
 		stopiter = self.seek_offset
@@ -97,21 +100,30 @@ class TemplateMatcher:
 				maxconf = 0
 				cdf = []
 				curindex = startindex
+				# Calculate the overall confidence for the rule
 				for k in df:
 					v = k["k"]
 					(conf, matchw, confw) = self.get_max_confidence(v, origstring[curindex:curindex+20])
 					#print confw, "=>",origstring[curindex:curindex+20], "   |",conf
+					
+					# If no word is found, weight it against the shortest string
+					if len(confw) == 0:
+						confw = min(v, key=len)
 					totalmatch += (conf*len(confw))
 					maxconf += len(confw)
-					#if conf >= confidence:
 					cdf.append([matchw, conf, k["t"]])
 					curindex += len(confw)+1
-
-				if totalmatch > bestmatch:
-					totconf = float(totalmatch)/float(maxconf)
-					print "New mest match:",totalmatch,"/",maxconf,"\t",str(round(totconf*100, 2))+"%"
+				
+			
+				if maxconf > 0:	totconf = float(totalmatch)/float(maxconf)
+				else: totconf = 0
+			
+				#if totalmatch > bestmatch and totconf >= confidence:
+				if totconf > bestconf:
+					print "best match:",totalmatch,"/",maxconf,"\t",str(round(totconf*100, 2))+"%"
 					print repr(cdf)
 					bestmatch = totalmatch
+					bestconf = totconf
 					found = (startindex, cdf, totconf)
 			if i > stopiter:
 				break;
