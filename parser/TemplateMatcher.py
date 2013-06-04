@@ -110,6 +110,7 @@ class TemplateMatcher:
 					if len(confw) == 0:
 						confw = min(v, key=len)
 					totalmatch += (conf*len(confw))
+					#totalmatch += (conf*len(confw)) / len(df) 
 					maxconf += len(confw)
 					cdf.append([matchw, conf, k["t"]])
 					curindex += len(confw)+1

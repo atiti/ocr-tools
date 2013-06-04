@@ -9,7 +9,9 @@ from SpellChecker import *
 from DateParser import *
 from Record import *
 from XLSProcessor import *
+from HOCRParser import *
 from kitchen.text.converters import getwriter
+from time import strftime
 UTF8Writer = getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 
@@ -50,25 +52,56 @@ files.sort()
 
 dateparse = DateParser()
 spell = SpellChecker("da")
-
+hocr = HOCRParser()
 
 records = []
 num_files = 0
 num_matched = 0
 # Loop though the files
 for f in files:
-	# Read in the file
+	if f.find(".txt") < 0:
+		continue
+	# Read in the TXT file
 	fd = codecs.open(PREFIX+f, "r", "utf-8")
 	buff = fd.read()
 	fd.close()
 
+	# Read in the HOCR file
+	has_hocr = True
+	hbuff = ""
+	try:
+		fd = codecs.open(PREFIX+f.replace(".txt", ".html"), "r", "utf-8")
+		if not fd:
+			has_hocr = False
+		else:
+			hbuff = fd.read()
+			fd.close()
+	except:
+		has_ocr = False
+		ocr_conf = 0
 	print "========================================================================================"
 	print f, type(buff)
+
+	# Calculate the OCR confidence
+	if has_hocr:
+		ocr_words = hocr.run(hbuff)
+		totalconf = 0
+		numwords = 0
+		for w in ocr_words:
+			if len(w.txt) < 2:
+				continue
+			totalconf += w.confidence
+			numwords += 1
+		if numwords > 0:
+			ocr_conf = round(float(totalconf)/numwords, 2)
+	else:
+		ocr_conf = 0
 
         # Check if the page is empty!
         if len(buff) < 10:
                 print "Empty page:",f
 		print ""
+		
                 continue
 
         # Spell checker?
@@ -91,6 +124,10 @@ for f in files:
 	confidence_cnt = 0
         newrecord = Record()
 
+	header_start_pos = 0
+	header_end_pos = 0
+	body_start_pos = 0
+	body_end_pos = 0
 	for r in ruleinstances:
                 m = r.getMatchedKeys()
 		if len(m.keys()) < 1:
@@ -112,9 +149,22 @@ for f in files:
 				for v in array[0]:
 					newrecord.date_org += v[0]+" "
 				newrecord.date_org = newrecord.date_org.replace("\n", "")
-				# New parsed string
 				#newrecord.date_new = str(date[0])+"/"+str(date[1])+"/"+str(date[2])
+			
+				# Validate the dates	
+				if (date[0] <= 0 or date[0] > 31):
+					newrecord.date_valid = False
+				if (date[1] <= 0 or date[1] > 12):
+					newrecord.date_valid = False
+				if (date[2] <= 1920 or date[2] > int(strftime("%Y"))):
+					newrecord.date_valid = False				
+
+				# New parsed string
 				newrecord.date_new = "%02d/%02d/%d" % (date[0], date[1], date[2])
+				
+				# Header starts right after the date!
+				header_start_pos = array[3] # Index to the end of the string
+ 
                         elif r.getRule().getType() == "timematch":
                         	timerange = dateparse.parseTime(array)
                 		# Concatenate to get the original string
@@ -122,6 +172,16 @@ for f in files:
 				for v in array[0]:
 					newrecord.time_org += v[0]+" "
 				newrecord.time_org = newrecord.time_org.replace("\n", "")
+				# Validate the time
+				if (timerange[0] > 24 or timerange[0] < 0):
+					newrecord.time_valid = False
+				if (timerange[1] > 59 or timerange[1] < 0):
+					newrecord.time_valid = False
+				if (timerange[2] > 24 or timerange[2] < 0):
+					newrecord.time_valid = False
+				if (timerange[3] > 59 or timerange[3] < 0):
+					newrecord.time_valid = False
+
 				# New parsed string
 				newrecord.time_new = "%02d.%02d.00" % (timerange[0], timerange[1])
 
@@ -134,7 +194,12 @@ for f in files:
 					duration_h = duration / 60
 					duration_m = duration % 60
 					newrecord.duration = "%02d.%02d.00" % (duration_h, duration_m)
-
+				
+				# Header stops right before the time.
+				header_end_pos = array[2]
+				# Body starts right after the time
+				body_start_pos = array[3]
+				
 		except:
 			traceback.print_exc()
 
@@ -143,13 +208,15 @@ for f in files:
 		print r.getRule().getName(),":",r.getRule().getType(),":",m
 		
 		# Calculating total confidence
-		confidence_sum += array[len(array)-1]
+		confidence_sum += array[1]
 		confidence_cnt += 1
 
 	# Total record confidence calculation
 	total_confidence = round((float(confidence_sum)/float(confidence_cnt))*100, 2)
 	newrecord.confidence = total_confidence
+	newrecord.ocr_confidence = ocr_conf
 	print "Total confidence: "+str(total_confidence)+"%"
+	print "Total OCR confidence: "+str(ocr_conf)+"%"	
 
 	# Fill out date time
 	# TODO: Some sort of datatype here?
@@ -158,15 +225,27 @@ for f in files:
 	# Calculate page index
 	backside = 0
 	fnum = f.split("_") # Split up the filename into parts
+	if len(fnum) < 2:
+		fnum = f.split(" - ")
+	
 	if len(fnum) > 1:
-		fnum = int(fnum[1].replace(".txt", "")) # Strip the .txt at the end and cast to integer
+		fnum = int(fnum[len(fnum)-1].replace(".txt", "")) # Strip the .txt at the end and cast to integer
 		if fnum % 2 == 0:
 			backside = 1
-			
 
 #	newrecord.display()	
 	if not backside:
-		newrecord.images += f 
+		# Fill out the header from the front page
+		newrecord.header = buff[header_start_pos:header_end_pos].strip('\n')		
+		# Fill out the body
+		if body_end_pos == 0:
+			body_end_pos = len(buff)
+		newrecord.body = buff[body_start_pos:body_end_pos].strip('\n')
+		newrecord.images += f
+
+		if not newrecord.validate():
+			newrecord.confidence = 0
+
 		records.append(newrecord)
 	# If it's the backside then append the text to the previous' body, and add the side file
 	else:

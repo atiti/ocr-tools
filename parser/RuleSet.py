@@ -14,6 +14,10 @@ class RuleSet:
 		tokens = re.findall(r"\w+|[^\w\s]", buf, re.UNICODE)
 		return tokens
 
+	# Creates a new rule instance
+	# The format of the RuleInstance is the following
+	#
+	#
 	def runRule(self, buf, index, r):
 		curindex = index
 		sm = StringMatcher()
@@ -23,18 +27,25 @@ class RuleSet:
 		if r.getType() == 'stringmatch':
 			p = sm.seek_until_keys(buf[curindex:], r.getKeys(), r.getExpectedConfidence())
 			if p[0] != -1: # Found something
-				ri.addMatchedKeys(r.getType(), [p[1], p[2]])
+				ri.addMatchedKeys(r.getType(), [p[1], p[2], curindex+p[0], curindex+(p[0]+len(p[1]))])
 				curindex += (p[0]+len(p[1]))
 		elif r.getType() == 'datematch':
 			p = dm.locate_date(buf[curindex:], r.getExpectedConfidence())
 			if p[0] != -1:
-				ri.addMatchedKeys(r.getType(), [p[1], p[2]])
+				condate = ""
+				for v in p[1]:
+					condate += v[0]+" "
+
+				ri.addMatchedKeys(r.getType(), [p[1], p[2], curindex+p[0], curindex+p[0]+len(condate)])
 				curindex += p[0]
 		elif r.getType() == 'timematch':
 			p = tm.locate_time(buf[curindex:], r.getExpectedConfidence())
 			if p[0] != -1:
-				print "Time offset: ",curindex," and ",p[0]," = ", curindex+p[0]
-				ri.addMatchedKeys(r.getType(), [p[1], p[2]])
+				contime = ""
+				for v in p[1]:
+					contime += v[0]+" "
+				print "Time offset: ",curindex," and ",p[0]," = ", curindex+p[0]+len(contime)
+				ri.addMatchedKeys(r.getType(), [p[1], p[2], curindex+p[0], curindex+p[0]+len(contime)])
 				curindex += p[0]
 
 		return (curindex, ri)

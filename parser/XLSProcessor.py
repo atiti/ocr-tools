@@ -2,7 +2,7 @@ from Record import *
 import xlwt 
 
 
-XLS_TITLES = ['TITEL', 'CONFIDENCE', 'TIME_ORG', 'TIME_NEW', 'DURATION', 'DATE_ORG', 'DATE_NEW', 'DATETIME', 'COLOPHON', 'DESCRIPTION', 'IMAGES']
+XLS_TITLES = ['TITEL', 'OCR', 'CONFIDENCE', 'TIME_ORG', 'TIME_NEW', 'DURATION', 'DATE_ORG', 'DATE_NEW', 'DATETIME', 'COLOPHON', 'DESCRIPTION', 'IMAGES']
 
 class XLSProcessor:
 	filename = ""
@@ -10,6 +10,7 @@ class XLSProcessor:
 	worksheet = None
 	cur_row = 0
 	cur_col = 0
+	basic_style = None
 	def __init__(self, filename):
 		global XLS_TITLES
 		self.filename = filename
@@ -17,13 +18,10 @@ class XLSProcessor:
 		self.worksheet = self.workbook.add_sheet("Parser")
 			
 		# Create bold font for spreadsheet
-		font = xlwt.Font() 
-		font.name = 'Arial'
-		font.bold = True
-		font.underline = True
-		font.italic = False
-		style = xlwt.XFStyle()
-		style.font = font
+		style = xlwt.easyxf('font: bold 1;')
+
+		# Create a standard font
+		self.basic_style = xlwt.easyxf('align: wrap on;')	
 
 		self.cur_row = 0
 		self.cur_col = 0
@@ -32,28 +30,37 @@ class XLSProcessor:
 		self.cur_row += 1
 
 	def add_item(self, record):
+		if (record.confidence < 90):
+			badstyle = xlwt.easyxf('align: wrap on; pattern: pattern solid, pattern_fore_colour coral')
+		elif record.time_valid == False or record.date_valid == False:
+			badstyle = xlwt.easyxf('align: wrap on; pattern: pattern solid, pattern_fore_colour tan')
+		else:
+			badstyle = self.basic_style
+
 		self.cur_col = 0
-		self.worksheet.write(self.cur_row, self.cur_col, record.title) # Write the title
+		self.worksheet.write(self.cur_row, self.cur_col, record.title, badstyle) # Write the title
 		self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.confidence) # Write the confidence
+		self.worksheet.write(self.cur_row, self.cur_col, record.ocr_confidence, badstyle) 
+		self.cur_col += 1
+		self.worksheet.write(self.cur_row, self.cur_col, record.confidence, badstyle)
                 self.cur_col += 1		
-		self.worksheet.write(self.cur_row, self.cur_col, record.time_org) # Write the time_org
+		self.worksheet.write(self.cur_row, self.cur_col, record.time_org, badstyle) # Write the time_org
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.time_new) # Write the time_new
+		self.worksheet.write(self.cur_row, self.cur_col, record.time_new, badstyle) # Write the time_new
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.duration) # Write the duration
+		self.worksheet.write(self.cur_row, self.cur_col, record.duration, badstyle) # Write the duration
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.date_org) # Write the date_org
+		self.worksheet.write(self.cur_row, self.cur_col, record.date_org, badstyle) # Write the date_org
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.date_new) # Write the date_new
+		self.worksheet.write(self.cur_row, self.cur_col, record.date_new, badstyle) # Write the date_new
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.datetime) # Write the datetime
+		self.worksheet.write(self.cur_row, self.cur_col, record.datetime, badstyle) # Write the datetime
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.header) # Write the header
+		self.worksheet.write(self.cur_row, self.cur_col, record.header, badstyle) # Write the header
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.body) # Write the body
+		self.worksheet.write(self.cur_row, self.cur_col, record.body, badstyle) # Write the body
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.images) # Write the images
+		self.worksheet.write(self.cur_row, self.cur_col, record.images, badstyle) # Write the images
 		self.cur_row += 1
 
 	def save(self):

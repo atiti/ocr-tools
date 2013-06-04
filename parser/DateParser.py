@@ -4,22 +4,25 @@ import traceback
 
 MONTHS = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli', 'august', 'september', 'october', 'november', 'december']
 
+""" After matching the correct date format, it needs to be parsed, this is what DateParser does """ 
 class DateParser:
 	def __init__(self):
 		pass
 
-	# Preprocess string
 	def preprocess(self, txt):
+		""" Preprocess the string to correct commonly found mistakes in the OCR """
 		txt = txt.replace("l", "1") # Replace l => 1  For example: l997
 		txt = txt.replace("q", "0") # Replace Q => 0  For example: Kl. 1Q.QQ
 		return txt
 
 	# Filter out only digits
 	def getDigits(self, txt):
+		""" Filter out only digits from a given string """
 		return re.sub(r'[^\d]', '', txt)
 
 	# Return the month number
 	def getMonth(self, txt):
+		""" Convert given string to a month number. The string could be as names of the months, or as number """
 		global MONTHS
 		d = self.getDigits(txt)
 		if len(d) == 0:
@@ -34,6 +37,7 @@ class DateParser:
 			return len(d)
 
 	def getDayMonth(self, txt):
+		""" Convert the day.month string into a tuple of day and month as digits """
 		txt = txt.lower().strip() # Lower case the string
 		s = txt.split(".")
 		# We have a dot in the string
@@ -56,6 +60,7 @@ class DateParser:
 		return [0,0] 
 		
 	def getDayMonthYear(self, txt):
+		""" Convert the day.month.year string into a tuple of day, month and year digits """
 		txt = txt.lower().strip()
 		s = txt.split(".")
 		if len(s) < 3:
@@ -76,6 +81,7 @@ class DateParser:
 		return [0,0,0]
 
 	def getHourMinute(self, txt):
+		""" Conver the hour:minute/hour.minute string into a tuple of hours and minutes """
 		txt = txt.lower().strip().replace(":", ".") # Let's make ' 00:00 ' => '00.00' 
 		s = txt.split(".")
 		# Invalid time format
@@ -92,6 +98,7 @@ class DateParser:
 		return [0, 0]
 
 	def getHourMinuteRange(self, txt):
+		""" Convert the hour:minute-hour:minute time range string to a tuple of hour1,min1,hour2,min2 """
 		txt = txt.lower().strip()
 		s = txt.split("-")
 		# Invalid time range format
@@ -109,6 +116,7 @@ class DateParser:
 
 	# Parse the date based on the extracted templates
 	def parseDate(self, d1):
+		""" Parse the date string based on the extracted templates, output the date in a uniform tuple """
 		day = 0
 		month = 0
 		year = 0		
@@ -143,6 +151,7 @@ class DateParser:
 
 	# Parse time or timerange based on extracted templates
 	def parseTime(self, t1):
+		""" Parse the time string based on the extracted templates, output the time in a uniform tuple """
 		hour = 0
 		mins = 0
 		hour2 = 0
