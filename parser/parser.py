@@ -46,6 +46,12 @@ ruletree = [ {'rule': 'programtype', True: {'rule':'airdate', True: None,
 	     {'rule': 'time', True: None, False: None} ]
 	   #  {'rule': 'airdate', True: None, False: None} ] 
 
+
+def format_block_text(t):
+	newtxt = re.sub(r'(\w)\n(\w)', r'\1 \2', t, flags=re.UNICODE)  # Get rid of "ordinary" line wraps
+	newtxt = re.sub(r'(\w)(-)\n(\w)', r'\1\3', newtxt, flags=re.UNICODE) # Get rid of line split wraps
+	return newtxt
+
 PREFIX=sys.argv[1]
 files = os.listdir(PREFIX)
 files.sort()
@@ -233,19 +239,23 @@ for f in files:
 		if fnum % 2 == 0:
 			backside = 1
 
-#	newrecord.display()	
 	if not backside:
 		# Fill out the header from the front page
+		# The header is between the date stamp and the time stamp usually
 		newrecord.header = buff[header_start_pos:header_end_pos].strip('\n')		
-		# Fill out the body
+		# Fill out the body:
+		# The body is the text after the timestamp
 		if body_end_pos == 0:
 			body_end_pos = len(buff)
-		newrecord.body = buff[body_start_pos:body_end_pos].strip('\n')
-		newrecord.images += f
+		newrecord.body = format_block_text(buff[body_start_pos:body_end_pos].strip('\n'))
 
+		newrecord.images += f.replace(".txt", "") # Append pages and remove extension
+
+		# Validate field values in a record
 		if not newrecord.validate():
 			newrecord.confidence = 0
 
+		print newrecord.display()
 		records.append(newrecord)
 	# If it's the backside then append the text to the previous' body, and add the side file
 	else:
@@ -261,9 +271,9 @@ for f in files:
 		# Clean up the temporary record for the backside
 		del newrecord
 		newrecord = oldrecord
-		newrecord.body += buff	
-		newrecord.images += ", "+f
-		newrecord.display()
+		newrecord.body += format_block_text(buff)
+		newrecord.images += ", "+f.replace(".txt", "")   # Append pages and remove extension
+		print newrecord.display()
 	# Check if the record is complete!
 	if has_empty:
 		if not backside:

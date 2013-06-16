@@ -2,7 +2,7 @@ from Record import *
 import xlwt 
 
 
-XLS_TITLES = ['TITEL', 'OCR', 'CONFIDENCE', 'TIME_ORG', 'TIME_NEW', 'DURATION', 'DATE_ORG', 'DATE_NEW', 'DATETIME', 'COLOPHON', 'DESCRIPTION', 'IMAGES']
+XLS_TITLES = ['KANAL', 'TITEL', 'OCR', 'PARSING', 'TIME_ORG', 'TIME_NEW', 'DURATION', 'DATE_ORG', 'DATE_NEW', 'DATETIME', 'COLOPHON', 'DESCRIPTION', 'IMAGES']
 
 class XLSProcessor:
 	filename = ""
@@ -30,7 +30,7 @@ class XLSProcessor:
 		self.cur_row += 1
 
 	def add_item(self, record):
-		if (record.confidence < 90):
+		if (record.confidence < 80):
 			badstyle = xlwt.easyxf('align: wrap on; pattern: pattern solid, pattern_fore_colour coral')
 		elif record.time_valid == False or record.date_valid == False:
 			badstyle = xlwt.easyxf('align: wrap on; pattern: pattern solid, pattern_fore_colour tan')
@@ -38,6 +38,8 @@ class XLSProcessor:
 			badstyle = self.basic_style
 
 		self.cur_col = 0
+		self.worksheet.write(self.cur_row, self.cur_col, record.channel, badstyle) # Write the channel
+		self.cur_col += 1
 		self.worksheet.write(self.cur_row, self.cur_col, record.title, badstyle) # Write the title
 		self.cur_col += 1
 		self.worksheet.write(self.cur_row, self.cur_col, record.ocr_confidence, badstyle) 
@@ -58,7 +60,13 @@ class XLSProcessor:
                 self.cur_col += 1
 		self.worksheet.write(self.cur_row, self.cur_col, record.header, badstyle) # Write the header
                 self.cur_col += 1
-		self.worksheet.write(self.cur_row, self.cur_col, record.body, badstyle) # Write the body
+	
+		# FIXME: Cut off the rest of the text if it doesn't fit in the column!
+		if len(record.body) > 32767:
+			body = record.body[0:32766]
+		else:
+			body = record.body
+		self.worksheet.write(self.cur_row, self.cur_col, body, badstyle) # Write the body
                 self.cur_col += 1
 		self.worksheet.write(self.cur_row, self.cur_col, record.images, badstyle) # Write the images
 		self.cur_row += 1

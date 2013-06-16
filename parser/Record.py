@@ -1,5 +1,6 @@
 """ Record is a datatype to store the extarcted information about the different parameters for one specific program """
 class Record:
+	channel = ""
 	title = ""
 	time_org = ""
 	time_new = ""
@@ -45,18 +46,18 @@ class Record:
 
 	def display(self):
 		""" Display the Record in a user-friendly way """
-		outstr = "************************"
-		outstr += "Title:\t "+self.title
-		outstr += "Time orig:\t "+self.time_org
-		outstr += "Time new:\t "+self.time_new
-		outstr += "Duration:\t "+self.duration
-		outstr += "Date orig:\t "+self.date_org
-		outstr += "Date new:\t "+self.date_new
-		outstr += "DateTime:\t "+self.datetime
-		outstr += "Header:\t "+self.header
-		outstr += "Body:\t "+self.body
-		outstr += "Images:\t "+self.images
-		outstr += "Confidence:\t "+str(self.confidence)
-		outstr += "OCR Confidence:\t "+str(self.ocr_confidence)
-		outstr += "*************************"
+		outstr = "************************\n"
+		outstr += "Title:\t "+self.title+"\n"
+		outstr += "Time orig:\t "+self.time_org+"\n"
+		outstr += "Time new:\t "+self.time_new+"\n"
+		outstr += "Duration:\t "+self.duration+"\n"
+		outstr += "Date orig:\t "+self.date_org+"\n"
+		outstr += "Date new:\t "+self.date_new+"\n"
+		outstr += "DateTime:\t "+self.datetime+"\n"
+		outstr += "Header:\t "+self.header+"\n"
+		outstr += "Body:\t "+self.body+"\n"
+		outstr += "Images:\t "+self.images+"\n"
+		outstr += "Confidence:\t "+str(self.confidence)+"\n"
+		outstr += "OCR Confidence:\t "+str(self.ocr_confidence)+"\n"
+		outstr += "*************************\n"
 		return outstr
