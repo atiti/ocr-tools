@@ -130,13 +130,13 @@ class DateParser:
 			value = a[0]
 
 			if template == 'd':  # Day
-				day = int(self.getDigits(value))
+				day = int(self.getDigits(self.preprocess(value)))
 				#print value, self.getDigits(value)		
 			elif template == 'm':  # Month
 				month = self.getMonth(value)
 				#print value, self.getMonth(value)
 			elif template == 'y':  # Year
-				year = int(self.getDigits(value))
+				year = int(self.getDigits(self.preprocess(value)))
 				#print value, self.getDigits(value)
 			elif template == 'd.m': # Day and month
 				[day, month] = self.getDayMonth(value)

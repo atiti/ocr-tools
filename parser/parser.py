@@ -169,7 +169,7 @@ for f in files:
 				newrecord.date_new = "%02d/%02d/%d" % (date[0], date[1], date[2])
 				
 				# Header starts right after the date!
-				header_start_pos = array[3] # Index to the end of the string
+				header_start_pos = array[3]-1 # Index to the end of the string
  
                         elif r.getRule().getType() == "timematch":
                         	timerange = dateparse.parseTime(array)
@@ -204,7 +204,7 @@ for f in files:
 				# Header stops right before the time.
 				header_end_pos = array[2]
 				# Body starts right after the time
-				body_start_pos = array[3]
+				body_start_pos = array[3]-1
 				
 		except:
 			traceback.print_exc()

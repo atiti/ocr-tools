@@ -6,10 +6,12 @@ class TemplateMatcher:
 		self.formats = templates
 		self.seek_offset = seek_offset
 	def preprocess(self, str1):
+		# FIXME: These should be generalized
 		#new = str1.replace("l", "1") # Replace misdetected 'l' as 1 : l987 => 1987
 		new = str1.replace("o", "0")  # Replace misdetected 0 : o2.O2 => 02.02
 		new = new.replace("O", "0")  # o2.O2 => o2.02
 		new = new.replace("]", "7")  # Replace ] with 7 : 198] => 1987
+		new = new.replace("ll", "11") # ll. => 11.
 		return new
 
 	def compare_cs(self, str1, str2, exact):
@@ -79,8 +81,9 @@ class TemplateMatcher:
 		tomatch = self.preprocess(tomatch)
 		for s in strarray:
 			conf = self.compare_ncs(s, tomatch, 0)
-			#print s,"=>",tomatch[0:len(s)],"   |",conf
-			if conf >= maxconf and len(s) > len(maxconfword):
+			#print s,"=>",tomatch,"|",conf
+			#print s,"=>",tomatch[0:len(s)].replace("\n", ""),"   |",conf
+			if conf > maxconf or (conf == maxconf and len(s) > len(maxconfword)): # and len(s) > len(maxconfword):
 				maxconf = conf
 				maxmatchword = tomatch[0:len(s)]
 				maxconfword = s
@@ -104,7 +107,7 @@ class TemplateMatcher:
 				for k in df:
 					v = k["k"]
 					(conf, matchw, confw) = self.get_max_confidence(v, origstring[curindex:curindex+20])
-					#print confw, "=>",origstring[curindex:curindex+20], "   |",conf
+					#print confw, "=>",origstring[curindex:curindex+20], "   |",conf, matchw
 					
 					# If no word is found, weight it against the shortest string
 					if len(confw) == 0:

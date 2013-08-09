@@ -24,6 +24,7 @@ class DateMatcher:
 	# Preprocess our input buffer for common mistakes
 	def preprocess(self, str1):
 		new = str1.replace("l9", "19") # l991 => 1991
+		new = str1.replace("ll", "11") # ll. => 11.
 		#new = self.tm.preprocess(str1)
 		return new
 
