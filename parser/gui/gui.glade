@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glade-interface>
+  <!-- interface-requires gtk+ 2.16 -->
+  <!-- interface-naming-policy project-wide -->
+  <widget class="GtkWindow" id="MainWindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">OCR/Parsing GUI</property>
+    <property name="default_width">440</property>
+    <property name="default_height">250</property>
+    <child>
+      <widget class="GtkLayout" id="layout1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <widget class="GtkProgressBar" id="progressbar1">
+            <property name="width_request">438</property>
+            <property name="height_request">28</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </widget>
+          <packing>
+            <property name="y">190</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkCheckButton" id="runocr">
+            <property name="label" translatable="yes">OCR</property>
+            <property name="width_request">98</property>
+            <property name="height_request">31</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+          </widget>
+          <packing>
+            <property name="x">101</property>
+            <property name="y">143</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkCheckButton" id="runparser">
+            <property name="label" translatable="yes">Parser</property>
+            <property name="width_request">100</property>
+            <property name="height_request">31</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+          </widget>
+          <packing>
+            <property name="x">186</property>
+            <property name="y">144</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkButton" id="runbutton">
+            <property name="label" translatable="yes">Run</property>
+            <property name="width_request">114</property>
+            <property name="height_request">51</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="use_action_appearance">False</property>
+            <signal name="clicked" handler="on_runbutton_clicked" swapped="no"/>
+          </widget>
+          <packing>
+            <property name="x">322</property>
+            <property name="y">123</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label1">
+            <property name="width_request">62</property>
+            <property name="height_request">20</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Process:</property>
+          </widget>
+          <packing>
+            <property name="x">94</property>
+            <property name="y">124</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkHSeparator" id="hseparator1">
+            <property name="width_request">375</property>
+            <property name="height_request">25</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </widget>
+          <packing>
+            <property name="x">1</property>
+            <property name="y">101</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkSpinButton" id="threads">
+            <property name="width_request">60</property>
+            <property name="height_request">26</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">●</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
+            <property name="adjustment">1 1 16 1 10 0</property>
+            <property name="climb_rate">1</property>
+            <property name="snap_to_ticks">True</property>
+            <property name="numeric">True</property>
+          </widget>
+          <packing>
+            <property name="x">14</property>
+            <property name="y">145</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label2">
+            <property name="width_request">78</property>
+            <property name="height_request">26</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Threads:</property>
+          </widget>
+          <packing>
+            <property name="y">122</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkVSeparator" id="vseparator1">
+            <property name="width_request">20</property>
+            <property name="height_request">74</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </widget>
+          <packing>
+            <property name="x">79</property>
+            <property name="y">111</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkFileChooserButton" id="sourcechooser">
+            <property name="width_request">369</property>
+            <property name="height_request">31</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="action">select-folder</property>
+            <property name="title" translatable="yes">Select a Folder</property>
+          </widget>
+          <packing>
+            <property name="x">71</property>
+            <property name="y">28</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label3">
+            <property name="width_request">68</property>
+            <property name="height_request">24</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Source:</property>
+          </widget>
+          <packing>
+            <property name="y">32</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label4">
+            <property name="width_request">70</property>
+            <property name="height_request">32</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Target:</property>
+          </widget>
+          <packing>
+            <property name="y">65</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkFileChooserButton" id="targetchooser">
+            <property name="width_request">369</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="action">select-folder</property>
+            <property name="title" translatable="yes">Select a Folder</property>
+          </widget>
+          <packing>
+            <property name="x">71</property>
+            <property name="y">67</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkStatusbar" id="statusbar1">
+            <property name="width_request">440</property>
+            <property name="height_request">29</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="spacing">2</property>
+          </widget>
+          <packing>
+            <property name="y">217</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+</glade-interface>
